@@ -80,8 +80,8 @@
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map); {
-
+    }).addTo(map); 
+    function getColor(d) {
       return d > 1.8 ? '#4c2f7f' :
              d > 1.4 ? '#6f4fa1' :
              d > 1.0 ? '#9877c0' :
@@ -252,3 +252,4 @@
 </body>
 
 </html>
+
