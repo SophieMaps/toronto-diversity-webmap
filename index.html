@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Toronto Diversity & Socioeconomic Map</title>
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+    .info-popup-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+    .info-popup-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px;
+    }
+    .info-popup-table td {
+      padding: 2px 0;
+      vertical-align: top;
+    }
+    .info-popup-label {
+      color: #555;
+      padding-right: 6px;
+      white-space: nowrap;
+    }
+    .info-popup-value {
+      text-align: right;
+      font-weight: 500;
+    }
+    /* legend 样式 */
+    .info-legend {
+      background: white;
+      padding: 8px 10px;
+      line-height: 1.4;
+      font-size: 12px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+      border-radius: 4px;
+    }
+    .info-legend i {
+      width: 14px;
+      height: 14px;
+      float: left;
+      margin-right: 6px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin="">
+  </script>
+
+  <script>
+    var map = L.map('map').setView([43.7, -79.4], 11);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+      return d > 1.8 ? '#4c2f7f' :
+             d > 1.4 ? '#6f4fa1' :
+             d > 1.0 ? '#9877c0' :
+             d > 0.6 ? '#bba4d8' :
+             d > 0.2 ? '#d8cdef' :
+                       '#f2eff9';
+    }
+
+    function style(feature) {
+      var props = feature.properties || {};
+      var sdi = props.SDI_num;
+
+      return {
+        weight: 1,
+        color: '#777',        // Boundary color
+        fillOpacity: 0.85,
+        fillColor: (typeof sdi === 'number') ? getColor(sdi) : '#cccccc'
+      };
+    }
+
+    // Highlight Style
+    function highlightFeature(e) {
+      var layer = e.target;
+      layer.setStyle({
+        weight: 2,
+        color: '#000',
+        fillOpacity: 0.95
+      });
+
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+      }
+    }
+
+    function resetHighlight(e) {
+      geojsonLayer.resetStyle(e.target);
+    }
+
+    // Format Number
+    function formatNumber(num, decimals) {
+      if (typeof num !== 'number' || isNaN(num)) return 'N/A';
+      return num.toLocaleString('en-CA', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
+
+    function formatCurrency(num) {
+      if (typeof num !== 'number' || isNaN(num)) return 'N/A';
+      return '$' + num.toLocaleString('en-CA', {
+        maximumFractionDigits: 0
+      });
+    }
+
+    // add percentage
+    function formatPercent(num) {
+      if (typeof num !== 'number' || isNaN(num)) return 'N/A';
+      var value = num;
+      if (num <= 1) value = num * 100;
+      return value.toFixed(1) + '%';
+    }
+
+    // add popup & interaction
+    function onEachFeature(feature, layer) {
+      var p = feature.properties || {};
+
+      var name = p.AREA_NAME || 'Unknown neighbourhood';
+      var sdi  = (typeof p.SDI_num === 'number') ? p.SDI_num.toFixed(3) : 'N/A';
+
+      var income = formatCurrency(p.median_family_income_num);
+      var renter = formatPercent(p.Renter_Rate_num);
+      var lfpr   = formatPercent(p.LFPR_num);
+      var violent = formatNumber(p.Violent_Crime_Rate_num, 1);
+      var property = formatNumber(p.Property_Crime_Rate_num, 1);
+
+      var popupHtml = `
+        <div class="info-popup">
+          <div class="info-popup-title">${name}</div>
+          <table class="info-popup-table">
+            <tr>
+              <td class="info-popup-label">Diversity Index</td>
+              <td class="info-popup-value">${sdi}</td>
+            </tr>
+            <tr>
+              <td class="info-popup-label">Median family income</td>
+              <td class="info-popup-value">${income}</td>
+            </tr>
+            <tr>
+              <td class="info-popup-label">Renter rate</td>
+              <td class="info-popup-value">${renter}</td>
+            </tr>
+            <tr>
+              <td class="info-popup-label">Labour force participation</td>
+              <td class="info-popup-value">${lfpr}</td>
+            </tr>
+            <tr>
+              <td class="info-popup-label">Violent crime rate</td>
+              <td class="info-popup-value">${violent}</td>
+            </tr>
+            <tr>
+              <td class="info-popup-label">Property crime rate</td>
+              <td class="info-popup-value">${property}</td>
+            </tr>
+          </table>
+        </div>
+      `;
+
+      layer.bindPopup(popupHtml);
+
+      layer.on({
+        mouseover: function(e) {
+          highlightFeature(e);
+          layer.openPopup();
+        },
+        mouseout: function(e) {
+          resetHighlight(e);
+          layer.closePopup();
+        },
+        click: function(e) {
+
+          layer.openPopup();
+        }
+      });
+    }
+
+    var geojsonLayer = null;
+
+    fetch('toronto_neighbourhoods.geojson')
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        geojsonLayer = L.geoJSON(data, {
+          style: style,
+          onEachFeature: onEachFeature
+        }).addTo(map);
+
+        map.fitBounds(geojsonLayer.getBounds());
+      })
+      .catch(function(err) {
+        console.error('Error loading GeoJSON:', err);
+      });
+
+    var legend = L.control({position: 'bottomright'});
+
+    legend.onAdd = function (map) {
+      var div = L.DomUtil.create('div', 'info-legend');
+      var grades = [0, 0.2, 0.6, 1.0, 1.4, 1.8];
+      var labels = [];
+
+      div.innerHTML += '<b>Diversity Index (SDI)</b><br>';
+
+      for (var i = 0; i < grades.length; i++) {
+        var from = grades[i];
+        var to = grades[i + 1];
+
+        div.innerHTML +=
+          '<i style="background:' + getColor(from + 0.0001) + '"></i> ' +
+          from.toFixed(1) + (to ? '&ndash;' + to.toFixed(1) + '<br>' : '+');
+      }
+
+      return div;
+    };
+
+    legend.addTo(map);
+
+  </script>
+</body>
+</html>
