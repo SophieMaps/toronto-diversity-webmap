@@ -75,12 +75,18 @@
   </script>
 
   <script>
+    // add map
     var map = L.map('map').setView([43.7, -79.4], 11);
 
+    // basemap
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map); 
+    }).addTo(map);
+
+
+
+    
     function getColor(d) {
       return d > 1.8 ? '#4c2f7f' :
              d > 1.4 ? '#6f4fa1' :
@@ -90,19 +96,20 @@
                        '#f2eff9';
     }
 
+
     function style(feature) {
       var props = feature.properties || {};
       var sdi = props.SDI_num;
 
       return {
         weight: 1,
-        color: '#777',        // Boundary color
+        color: '#777',        // boundary color
         fillOpacity: 0.85,
         fillColor: (typeof sdi === 'number') ? getColor(sdi) : '#cccccc'
       };
     }
 
-    // Highlight Style
+    // highlight style
     function highlightFeature(e) {
       var layer = e.target;
       layer.setStyle({
@@ -120,7 +127,7 @@
       geojsonLayer.resetStyle(e.target);
     }
 
-    // Format Number
+    // format nums
     function formatNumber(num, decimals) {
       if (typeof num !== 'number' || isNaN(num)) return 'N/A';
       return num.toLocaleString('en-CA', {
@@ -136,7 +143,7 @@
       });
     }
 
-    // add percentage
+    // format percentage
     function formatPercent(num) {
       if (typeof num !== 'number' || isNaN(num)) return 'N/A';
       var value = num;
@@ -144,7 +151,7 @@
       return value.toFixed(1) + '%';
     }
 
-    // add popup & interaction
+    // popup and interactions
     function onEachFeature(feature, layer) {
       var p = feature.properties || {};
 
@@ -201,12 +208,13 @@
           layer.closePopup();
         },
         click: function(e) {
-
+          // 点击时保持 popup 打开
           layer.openPopup();
         }
       });
     }
 
+    // add geojson
     var geojsonLayer = null;
 
     fetch('toronto_neighbourhoods.geojson')
@@ -225,6 +233,7 @@
         console.error('Error loading GeoJSON:', err);
       });
 
+    // add legends
     var legend = L.control({position: 'bottomright'});
 
     legend.onAdd = function (map) {
@@ -250,6 +259,4 @@
 
   </script>
 </body>
-
 </html>
-
