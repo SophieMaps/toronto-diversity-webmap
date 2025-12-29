@@ -13,7 +13,7 @@ This map is designed for non-technical audiences, allowing users to intuitively 
 
 ## Live Demo
 👉 **View the interactive map here:**  
-<insert website>
+<insert [website](https://sophiemaps.github.io/toronto-diversity-webmap/)>
 
 ## Data Sources
 - City of Toronto Open Data Portal
