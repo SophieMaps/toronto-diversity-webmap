@@ -13,7 +13,7 @@ This map is designed for non-technical audiences, allowing users to intuitively 
 
 ## Live Demo
 👉 **View the interactive map here:**  
-[website](https://sophiemaps.github.io/toronto-diversity-webmap/)
+[Toronto Neighbourhood Diversity & Socioeconomic Indicators Map](https://sophiemaps.github.io/toronto-diversity-webmap/)
 
 ## Data Sources
 - City of Toronto Open Data Portal
